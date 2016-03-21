@@ -10,7 +10,7 @@ object Main {
 	def main(arg: Array[String]) {
 
 		if (arg.length < 2) {
-			System.err.println("Usage: CommonWords <dir book1> <dir book2>")
+			System.err.println("Usage: CommonWords <hdfs dir book1> <hdfs dir book2>")
 			System.exit(1)
 		}
 
