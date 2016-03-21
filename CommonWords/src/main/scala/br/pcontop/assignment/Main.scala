@@ -43,7 +43,7 @@ object Main {
 		val joinBooksSum = joinBooks.map{case(word, (one, two)) => (word, one + two)}
 
 		//Final Result
-		val result = joinBooksSum.map(a => a.swap).sortByKey(false).map { a => a._2 }.take(1500)
+		val result = joinBooksSum.map(a => a.swap).sortByKey(ascending = false).map { a => a._2 }.take(1500)
 
 		//Printing to file.
 
