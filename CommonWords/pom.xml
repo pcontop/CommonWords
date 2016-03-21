@@ -5,17 +5,16 @@
 	<artifactId>CommonWords</artifactId>
 	<version>1.0</version>
 	<properties>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.6</maven.compiler.source>
+		<maven.compiler.target>1.6</maven.compiler.target>
 		<encoding>UTF-8</encoding>
-		<scala.tools.version>2.11</scala.tools.version>
+		<scala.tools.version>2.10</scala.tools.version>
 		<!-- Put the Scala version of the cluster -->
 		<scala.version>2.10.5</scala.version>
 	</properties>
 
 	<build>
 		<sourceDirectory>src/main/scala</sourceDirectory>
-		<testSourceDirectory>src/test/scala</testSourceDirectory>
 		<plugins>
 
 			<plugin>
@@ -103,7 +102,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore/>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
