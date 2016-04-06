@@ -2,10 +2,31 @@ package br.pcontop.assignment
 
 import java.io._
 
+import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 import org.jsoup.Jsoup
 
 object Main {
+
+  def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit) {
+    val p = new java.io.PrintWriter(f)
+    try { op(p) } finally { p.close() }
+  }
+
+	def wordsFromFile(sc: SparkContext, dir: String): RDD[String] = {
+    sc.hadoopConfiguration.set("mapreduce.input.fileinputformat.input.dir.recursive","true")
+    val words1 = sc.wholeTextFiles(dir + "/**").map{case(_,y) => Jsoup.parse(y).text()}.flatMap{_.split(" ")}
+    words1
+  }
+
+  def wordMap(words: RDD[String]): RDD[(String, Int)] = {
+    words.map{x => (x,1)}.reduceByKey{(x,y) => x + y}
+  }
+
+  def wordMap(sc: SparkContext, dir: String) : RDD[(String, Int)] = {
+    val words = wordsFromFile(sc, dir)
+    wordMap(words)
+  }
 
 	def main(arg: Array[String]) {
 
@@ -20,29 +41,15 @@ object Main {
 
 		val sc = new SparkContext(new SparkConf().setAppName(jobName))
 
-		def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit) {
-			val p = new java.io.PrintWriter(f)
-			try { op(p) } finally { p.close() }
-		}
-		sc.hadoopConfiguration.set("mapreduce.input.fileinputformat.input.dir.recursive","true")
+    val wordMap1 = wordMap(sc, pathToBook1)
 
-		//Book a
-		val words1 = sc.wholeTextFiles(pathToBook1 + "/**").map{case(_,y) => Jsoup.parse(y).text()}.flatMap{_.split(" ")}
+		val wordMap2 = wordMap(sc, pathToBook2)
 
-		//words.count()
-
-		val wordCount1 = words1.map{x => (x,1)}.reduceByKey{(x,y) => x + y}
-
-		//Book b
-		val words2 = sc.wholeTextFiles(pathToBook2 + "/**").map{case(_,y) => Jsoup.parse(y).text()}.flatMap{_.split(" ")}
-
-		val wordCount2 = words2.map{x => (x,1)}.reduceByKey{(x,y) => x + y}
-
-		val joinBooks = wordCount1.join(wordCount2)
+		val joinBooks = wordMap1.join(wordMap2)
 
 		val joinBooksSum = joinBooks.map{case(word, (one, two)) => (word, one + two)}
 
-		//Final Result
+		//Final Result. I have to swap the map to order the RDD by the word occurrence count.
 		val result = joinBooksSum.map(a => a.swap).sortByKey(ascending = false).map { a => a._2 }.take(1500)
 
 		//Printing to file.
